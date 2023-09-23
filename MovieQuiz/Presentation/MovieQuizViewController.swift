@@ -1,28 +1,6 @@
 import UIKit
 
-struct QuizStepViewModel {
-    let image: UIImage
-    let question: String
-    let questionNumber: String
-}
-
-struct QuizQuestion {
-    let image: String
-    let text: String
-    let correctAnswer: Bool
-}
-
-struct QuizResultsViewModel {
-    let title: String
-    let text: String
-    let buttonText: String
-}
-
 final class MovieQuizViewController: UIViewController {
-    
-    private struct Text {
-        static let question: String = "Рейтинг этого фильма больше чем 6?"
-    }
     
     @IBOutlet private var imageView: UIImageView!
     @IBOutlet private var textLabel: UILabel!
@@ -30,31 +8,24 @@ final class MovieQuizViewController: UIViewController {
     @IBOutlet weak var noButton: UIButton!
     @IBOutlet weak var yesButton: UIButton!
     
-    private let questions: [QuizQuestion] = [
-        .init(image: Assets.godfatherImageName, text: Text.question, correctAnswer: true),
-        .init(image: Assets.darkKnightImageName, text: Text.question, correctAnswer: true),
-        .init(image: Assets.killBillImageName, text: Text.question, correctAnswer: true),
-        .init(image: Assets.avengersImageName, text: Text.question, correctAnswer: true),
-        .init(image: Assets.deadpoolImageName, text: Text.question, correctAnswer: true),
-        .init(image: Assets.greenKnightImageName, text: Text.question, correctAnswer: true),
-        .init(image: Assets.oldImageName, text: Text.question, correctAnswer: false),
-        .init(image: Assets.iceAgeAdventuresImageName, text: Text.question, correctAnswer: false),
-        .init(image: Assets.teslaImageName, text: Text.question, correctAnswer: false),
-        .init(image: Assets.vivariumImageName, text: Text.question, correctAnswer: false)
-        
-    ]
-    
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
     private var playedQuizes = 0
     private var bestScore: (score: Int, date: String) = (0, "")
     
+    private let questionsAmount: Int = 10
+    private let questionFactory: QuestionFactoryProtocol = QuestionFactory() 
+    private var currentQuestion: QuizQuestion?
+    
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        let viewModel = convert(model: questions[currentQuestionIndex])
-        show(quiz: viewModel)
+        if let firstQuestion = questionFactory.requestNextQuestion() {
+            currentQuestion = firstQuestion
+            let viewModel = convert(model: firstQuestion)
+            show(quiz: viewModel)
+        }
     }
     
     //MARK: - private methods
@@ -64,7 +35,7 @@ final class MovieQuizViewController: UIViewController {
         return QuizStepViewModel(
             image: UIImage(named: model.image) ?? UIImage(),
             question: model.text,
-            questionNumber: "\(currentQuestionIndex)/\(questions.count)")
+            questionNumber: "\(currentQuestionIndex)/\(questionsAmount)")
     }
     
     private func show(quiz step: QuizStepViewModel) {
@@ -95,22 +66,24 @@ final class MovieQuizViewController: UIViewController {
     }
     
     private func isAnswerCorrect(answer: Bool) {
-        let currentQuestion = questions[currentQuestionIndex - 1]
+        guard let currentQuestion = currentQuestion else {
+            return
+        }
         let isCorrect = currentQuestion.correctAnswer == answer
         showAnswerResult(isCorrect: isCorrect)
     }
     
     private func generateResultText() -> String {
-        let averageAccuracy = Double(correctAnswers) / Double(questions.count) * 100.0
+        let averageAccuracy = Double(correctAnswers) / Double(questionsAmount) * 100.0
         let formattedAccuracy = formatAccuracy(averageAccuracy)
         
-        let text = "Ваш результат: \(correctAnswers)/\(questions.count)  Количество сыгранных квизов: \(playedQuizes) Рекорд: \(bestScore.score)/\(questions.count) (\(bestScore.date) Средняя точность: \(formattedAccuracy)"
+        let text = "Ваш результат: \(correctAnswers)/\(questionsAmount)  Количество сыгранных квизов: \(playedQuizes) Рекорд: \(bestScore.score)/\(questionsAmount) (\(bestScore.date) Средняя точность: \(formattedAccuracy)"
         
         return text
     }
     
     private func showNextQuestionOrResults() {
-        if currentQuestionIndex == questions.count {
+        if currentQuestionIndex == questionsAmount {
             playedQuizes += 1
             if correctAnswers > bestScore.score {
                 bestScore.score = correctAnswers
@@ -126,9 +99,12 @@ final class MovieQuizViewController: UIViewController {
             
             showAlert(quiz: viewModel)
         } else {
-            let nextQuestion = questions[currentQuestionIndex]
-            let viewModel = convert(model: nextQuestion)
-            show(quiz: viewModel)
+            if let firstQuestion = self.questionFactory.requestNextQuestion() {
+                self.currentQuestion = firstQuestion
+                let viewModel = self.convert(model: firstQuestion)
+
+                self.show(quiz: viewModel)
+            }
         }
     }
     
@@ -142,10 +118,11 @@ final class MovieQuizViewController: UIViewController {
             guard let self = self else { return }
             self.currentQuestionIndex = 0
             self.correctAnswers = 0
-            
-            let firstQuestion = self.questions[self.currentQuestionIndex]
-            let viewModel = self.convert(model: firstQuestion)
-            self.show(quiz: viewModel)
+            if let firstQuestion = questionFactory.requestNextQuestion() {
+                currentQuestion = firstQuestion
+                let viewModel = convert(model: firstQuestion)
+                show(quiz: viewModel)
+            }
         }
         
         alertController.addAction(action)
