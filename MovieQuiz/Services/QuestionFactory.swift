@@ -28,13 +28,21 @@ final class QuestionFactory: QuestionFactoryProtocol {
         .init(image: Assets.vivariumImageName, text: Text.question, correctAnswer: false)
     ]
     
+    weak var delegate: QuestionFactoryDelegate?
+    
+    init(delegate: QuestionFactoryDelegate?) {
+        self.delegate = delegate
+    }
+    
     //Фабрика должна уметь создавать вопросы
     
-    func requestNextQuestion() -> QuizQuestion? {
+    func requestNextQuestion() {
         guard let index = (0..<questions.count).randomElement() else {
-            return nil
+            delegate?.didReceiveNextQuestion(question: nil)
+            return
         }
 
-        return questions[safe: index]
+        let question = questions[safe: index]
+        delegate?.didReceiveNextQuestion(question: question)
     }
 }

@@ -14,18 +14,16 @@ final class MovieQuizViewController: UIViewController {
     private var bestScore: (score: Int, date: String) = (0, "")
     
     private let questionsAmount: Int = 10
-    private let questionFactory: QuestionFactoryProtocol = QuestionFactory() 
+    private lazy var questionFactory: QuestionFactoryProtocol = {
+        QuestionFactory(delegate: self)
+    }()
     private var currentQuestion: QuizQuestion?
     
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        if let firstQuestion = questionFactory.requestNextQuestion() {
-            currentQuestion = firstQuestion
-            let viewModel = convert(model: firstQuestion)
-            show(quiz: viewModel)
-        }
+        questionFactory.requestNextQuestion()
     }
     
     //MARK: - private methods
@@ -99,12 +97,7 @@ final class MovieQuizViewController: UIViewController {
             
             showAlert(quiz: viewModel)
         } else {
-            if let firstQuestion = self.questionFactory.requestNextQuestion() {
-                self.currentQuestion = firstQuestion
-                let viewModel = self.convert(model: firstQuestion)
-
-                self.show(quiz: viewModel)
-            }
+            questionFactory.requestNextQuestion()
         }
     }
     
@@ -118,11 +111,7 @@ final class MovieQuizViewController: UIViewController {
             guard let self = self else { return }
             self.currentQuestionIndex = 0
             self.correctAnswers = 0
-            if let firstQuestion = questionFactory.requestNextQuestion() {
-                currentQuestion = firstQuestion
-                let viewModel = convert(model: firstQuestion)
-                show(quiz: viewModel)
-            }
+            self.questionFactory.requestNextQuestion()
         }
         
         alertController.addAction(action)
@@ -149,6 +138,21 @@ final class MovieQuizViewController: UIViewController {
     
     @IBAction func noButtonClicked(_ sender: Any) {
         isAnswerCorrect(answer: false)
+    }
+}
+
+// MARK: - QuestionFactoryDelegate
+
+extension MovieQuizViewController: QuestionFactoryDelegate {
+    func didReceiveNextQuestion(question: QuizQuestion?) {
+        guard let question = question else {
+            return
+        }
+        currentQuestion = question
+        let viewModel = convert(model: question)
+        DispatchQueue.main.async { [weak self] in
+            self?.show(quiz: viewModel)
+        }
     }
 }
 
