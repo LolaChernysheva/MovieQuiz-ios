@@ -14,10 +14,16 @@ final class MovieQuizViewController: UIViewController {
     private var bestScore: (score: Int, date: String) = (0, "")
     
     private let questionsAmount: Int = 10
+    private var currentQuestion: QuizQuestion?
+    
     private lazy var questionFactory: QuestionFactoryProtocol = {
         QuestionFactory(delegate: self)
     }()
-    private var currentQuestion: QuizQuestion?
+    
+    private lazy var alertPresenter: AlertPresenterDelegate = {
+        AlertPresenter(viewController: self)
+    }()
+   
     
     // MARK: - Lifecycle
     
@@ -102,21 +108,16 @@ final class MovieQuizViewController: UIViewController {
     }
     
     private func showAlert(quiz result: QuizResultsViewModel) {
-        let alertController = UIAlertController(
-            title: result.title,
-            message: result.text,
-            preferredStyle: .alert)
-        
-        let action = UIAlertAction(title: result.buttonText, style: .default) { [ weak self ] _ in
-            guard let self = self else { return }
+        let alertModel = AlertModel(
+            title: "Этот раунд окончен!",
+            message: generateResultText(),
+            buttonText: "Сыграть ещё раз") { [ weak self ] in
+                guard let self else { return }
             self.currentQuestionIndex = 0
             self.correctAnswers = 0
             self.questionFactory.requestNextQuestion()
         }
-        
-        alertController.addAction(action)
-        
-        present(alertController, animated: true, completion: nil)
+        alertPresenter.presentAlert(with: alertModel)
     }
     
     private func formatCurrentDate() -> String {
