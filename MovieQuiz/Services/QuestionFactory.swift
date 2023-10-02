@@ -28,7 +28,7 @@ final class QuestionFactory: QuestionFactoryProtocol {
         .init(image: Assets.vivariumImageName, text: Text.question, correctAnswer: false)
     ]
     
-    weak var delegate: QuestionFactoryDelegate?
+    private weak var delegate: QuestionFactoryDelegate?
     
     init(delegate: QuestionFactoryDelegate?) {
         self.delegate = delegate

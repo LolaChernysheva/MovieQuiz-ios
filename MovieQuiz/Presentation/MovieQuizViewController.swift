@@ -11,7 +11,6 @@ final class MovieQuizViewController: UIViewController {
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
     private var playedQuizes = 0
-    private var bestScore: (score: Int, date: String) = (0, "")
     
     private let questionsAmount: Int = 10
     private var currentQuestion: QuizQuestion?
@@ -22,6 +21,10 @@ final class MovieQuizViewController: UIViewController {
     
     private lazy var alertPresenter: AlertPresenterDelegate = {
         AlertPresenter(viewController: self)
+    }()
+    
+    private lazy var statisticService: StatisticService = {
+        StatisticServiceImplementation()
     }()
    
     
@@ -78,29 +81,27 @@ final class MovieQuizViewController: UIViewController {
     }
     
     private func generateResultText() -> String {
-        let averageAccuracy = Double(correctAnswers) / Double(questionsAmount) * 100.0
-        let formattedAccuracy = formatAccuracy(averageAccuracy)
+        let bestGame = statisticService.bestGame
+        let gamesCountText = "Количество сыгранных квизов: \(statisticService.gamesCount)"
+        let yourResultText = "Ваш результат: \(correctAnswers)\\\(questionsAmount)"
+        let recordText = bestGame?.textRepresention
+        let avarageAccuracyText = " Средняя точность: \(String(format: "%.2F", statisticService.totalAccuracy))%"
         
-        let text = "Ваш результат: \(correctAnswers)/\(questionsAmount)  Количество сыгранных квизов: \(playedQuizes) Рекорд: \(bestScore.score)/\(questionsAmount) (\(bestScore.date) Средняя точность: \(formattedAccuracy)"
-        
-        return text
+        let message = [gamesCountText, yourResultText, recordText].compactMap { $0 }.joined(separator: "\n")
+
+        return message
     }
     
     private func showNextQuestionOrResults() {
         if currentQuestionIndex == questionsAmount {
             playedQuizes += 1
-            if correctAnswers > bestScore.score {
-                bestScore.score = correctAnswers
-                bestScore.date = formatCurrentDate()
-            }
-            
             let resultText = generateResultText()
             
             let viewModel = QuizResultsViewModel(
                 title: "Этот раунд окончен!",
                 text: resultText,
                 buttonText: "Сыграть ещё раз")
-            
+            statisticService.store(correct: correctAnswers, total: questionsAmount)
             showAlert(quiz: viewModel)
         } else {
             questionFactory.requestNextQuestion()

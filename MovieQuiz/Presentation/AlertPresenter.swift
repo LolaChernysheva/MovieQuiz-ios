@@ -12,14 +12,16 @@ protocol AlertPresenterDelegate: AnyObject {
     func presentAlert(with model: AlertModel)
 }
 
-class AlertPresenter: AlertPresenterDelegate {
+class AlertPresenter {
     
     private let viewController: UIViewController
 
     init(viewController: UIViewController) {
         self.viewController = viewController
     }
+}
 
+extension AlertPresenter: AlertPresenterDelegate {
     func presentAlert(with model: AlertModel) {
         let alertController = UIAlertController(
             title: model.title,
