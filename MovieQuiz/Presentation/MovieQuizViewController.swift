@@ -82,12 +82,12 @@ final class MovieQuizViewController: UIViewController {
     
     private func generateResultText() -> String {
         let bestGame = statisticService.bestGame
-        let gamesCountText = "Количество сыгранных квизов: \(statisticService.gamesCount)"
         let yourResultText = "Ваш результат: \(correctAnswers)\\\(questionsAmount)"
+        let gamesCountText = "Количество сыгранных квизов: \(statisticService.gamesCount)"
         let recordText = bestGame?.textRepresention
         let avarageAccuracyText = " Средняя точность: \(String(format: "%.2F", statisticService.totalAccuracy))%"
         
-        let message = [gamesCountText, yourResultText, recordText].compactMap { $0 }.joined(separator: "\n")
+        let message = [yourResultText ,gamesCountText, recordText, avarageAccuracyText].compactMap { $0 }.joined(separator: "\n")
 
         return message
     }

@@ -14,7 +14,7 @@ struct GameRecord: Codable {
     let date: Date
     
     var textRepresention: String {
-        "Рекорд: \(correct)\\\(total)"
+        "Рекорд: \(correct)\\\(total)(\(date.dateTimeString))"
     }
     
     func isNewRecord(record: GameRecord) -> Bool {
