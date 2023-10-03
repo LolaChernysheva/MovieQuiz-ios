@@ -12,7 +12,7 @@ protocol AlertPresenterDelegate: AnyObject {
     func presentAlert(with model: AlertModel)
 }
 
-class AlertPresenter {
+final class AlertPresenter {
     
     private let viewController: UIViewController
 

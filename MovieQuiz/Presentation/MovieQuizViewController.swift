@@ -134,11 +134,11 @@ final class MovieQuizViewController: UIViewController {
     
     //MARK: - IBActions
     
-    @IBAction func yesButtonClicked(_ sender: Any) {
+    @IBAction private func yesButtonClicked(_ sender: Any) {
         isAnswerCorrect(answer: true)
     }
     
-    @IBAction func noButtonClicked(_ sender: Any) {
+    @IBAction private func noButtonClicked(_ sender: Any) {
         isAnswerCorrect(answer: false)
     }
 }

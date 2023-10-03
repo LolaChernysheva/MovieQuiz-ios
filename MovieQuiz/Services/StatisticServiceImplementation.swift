@@ -82,7 +82,7 @@ extension StatisticServiceImplementation: StatisticService {
         saveBestGameIfNeeded(correctCount: count, totalAmount: amount)
     }
     
-    func saveBestGameIfNeeded(correctCount: Int, totalAmount: Int) {
+    private func saveBestGameIfNeeded(correctCount: Int, totalAmount: Int) {
         let currentGame = GameRecord(correct: correctCount, total: totalAmount, date: Date())
         guard let bestGame else {
             self.bestGame = currentGame
@@ -91,6 +91,5 @@ extension StatisticServiceImplementation: StatisticService {
         if currentGame > bestGame {
             self.bestGame = currentGame
         }
-
     }
 }
