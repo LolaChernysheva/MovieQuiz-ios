@@ -8,7 +8,6 @@
 
 import Foundation
 
-// массив с вопросами и один метод, который вернёт случайно выбранный вопрос
 final class QuestionFactory: QuestionFactoryProtocol {
     
     private struct Text {
@@ -37,18 +36,6 @@ final class QuestionFactory: QuestionFactoryProtocol {
         self.moviesLoader = moviesLoader
         self.delegate = delegate
     }
-    
-    //Фабрика должна уметь создавать вопросы
-    
-//    func requestNextQuestion() {
-//        guard let index = (0..<questions.count).randomElement() else {
-//            delegate?.didReceiveNextQuestion(question: nil)
-//            return
-//        }
-//
-//        let question = questions[safe: index]
-//        delegate?.didReceiveNextQuestion(question: question)
-//    }
     
     func loadData() {
         moviesLoader.loadMovies { [weak self] result in
