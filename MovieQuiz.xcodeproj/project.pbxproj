@@ -20,6 +20,7 @@
 		F31C304B2AD6DA6F00341A6C /* MoviesLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31C304A2AD6DA6F00341A6C /* MoviesLoader.swift */; };
 		F348A3182ADFCCAC0072485C /* MovieQuizTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F348A3172ADFCCAC0072485C /* MovieQuizTests.swift */; };
 		F348A31F2ADFDAE70072485C /* ArrayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F348A31E2ADFDAE70072485C /* ArrayTests.swift */; };
+		F348A3212ADFF9AB0072485C /* MoviesLoaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F348A3202ADFF9AB0072485C /* MoviesLoaderTests.swift */; };
 		F37736712AA4927C00097029 /* YS Display-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F377366F2AA4927C00097029 /* YS Display-Bold.ttf */; };
 		F37736722AA4927C00097029 /* YS Display-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F37736702AA4927C00097029 /* YS Display-Medium.ttf */; };
 		F37736742AA49A5500097029 /* Assets.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37736732AA49A5500097029 /* Assets.swift */; };
@@ -64,6 +65,7 @@
 		F348A3152ADFCCAC0072485C /* MovieQuizTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MovieQuizTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F348A3172ADFCCAC0072485C /* MovieQuizTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieQuizTests.swift; sourceTree = "<group>"; };
 		F348A31E2ADFDAE70072485C /* ArrayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrayTests.swift; sourceTree = "<group>"; };
+		F348A3202ADFF9AB0072485C /* MoviesLoaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoviesLoaderTests.swift; sourceTree = "<group>"; };
 		F377366F2AA4927C00097029 /* YS Display-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "YS Display-Bold.ttf"; sourceTree = "<group>"; };
 		F37736702AA4927C00097029 /* YS Display-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "YS Display-Medium.ttf"; sourceTree = "<group>"; };
 		F37736732AA49A5500097029 /* Assets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assets.swift; sourceTree = "<group>"; };
@@ -169,6 +171,7 @@
 			children = (
 				F348A3172ADFCCAC0072485C /* MovieQuizTests.swift */,
 				F348A31E2ADFDAE70072485C /* ArrayTests.swift */,
+				F348A3202ADFF9AB0072485C /* MoviesLoaderTests.swift */,
 			);
 			path = MovieQuizTests;
 			sourceTree = "<group>";
@@ -333,6 +336,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F348A3182ADFCCAC0072485C /* MovieQuizTests.swift in Sources */,
+				F348A3212ADFF9AB0072485C /* MoviesLoaderTests.swift in Sources */,
 				F348A31F2ADFDAE70072485C /* ArrayTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
