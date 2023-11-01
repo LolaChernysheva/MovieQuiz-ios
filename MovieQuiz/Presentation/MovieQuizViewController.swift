@@ -3,6 +3,7 @@ import UIKit
 protocol MovieQuizViewProtocol: AnyObject {
     func showAnswerResult(isCorrect: Bool)
     func show(quiz step: QuizStepViewModel)
+    func showAlert(quiz result: QuizResultsViewModel)
 }
 
 final class MovieQuizViewController: UIViewController {
@@ -14,19 +15,12 @@ final class MovieQuizViewController: UIViewController {
     @IBOutlet weak var yesButton: UIButton!
     @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
     
-    private var correctAnswers = 0
-    private var playedQuizes = 0
-    
     private lazy var questionFactory: QuestionFactoryProtocol = {
         QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
     }()
     
     private lazy var alertPresenter: AlertPresenterDelegate = {
         AlertPresenter(viewController: self)
-    }()
-    
-    private lazy var statisticService: StatisticService = {
-        StatisticServiceImplementation()
     }()
     
     private var presenter: MovieQuizPresenterProtocol!
@@ -36,54 +30,13 @@ final class MovieQuizViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        presenter = MovieQuizPresenter(view: self)
+        presenter = MovieQuizPresenter(view: self, questionFactory: questionFactory)
         showLoadingIndicator()
         questionFactory.loadData()
     }
     
     //MARK: - private methods
-    
-    private func generateResultText() -> String {
-        let bestGame = statisticService.bestGame
-        let yourResultText = "Ваш результат: \(correctAnswers)\\\(presenter.questionsAmount)"
-        let gamesCountText = "Количество сыгранных квизов: \(statisticService.gamesCount)"
-        let recordText = bestGame?.textRepresention
-        let avarageAccuracyText = " Средняя точность: \(String(format: "%.2F", statisticService.totalAccuracy))%"
-        
-        let message = [yourResultText ,gamesCountText, recordText, avarageAccuracyText].compactMap { $0 }.joined(separator: "\n")
 
-        return message
-    }
-    
-    private func showNextQuestionOrResults() {
-        if presenter.isLastQuestion() {
-            playedQuizes += 1
-            let resultText = generateResultText()
-            
-            let viewModel = QuizResultsViewModel(
-                title: "Этот раунд окончен!",
-                text: resultText,
-                buttonText: "Сыграть ещё раз")
-            statisticService.store(correct: correctAnswers, total: presenter.questionsAmount)
-            showAlert(quiz: viewModel)
-        } else {
-            questionFactory.requestNextQuestion()
-        }
-    }
-    
-    private func showAlert(quiz result: QuizResultsViewModel) {
-        let alertModel = AlertModel(
-            title: "Этот раунд окончен!",
-            message: generateResultText(),
-            buttonText: "Сыграть ещё раз") { [ weak self ] in
-                guard let self else { return }
-                self.presenter.resetQuestionIndex()
-            self.correctAnswers = 0
-            self.questionFactory.requestNextQuestion()
-        }
-        alertPresenter.presentAlert(with: alertModel)
-    }
-    
     private func formatCurrentDate() -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "dd.MM.yy HH:mm"
@@ -108,7 +61,7 @@ final class MovieQuizViewController: UIViewController {
             guard let self = self else { return }
             
             self.presenter.resetQuestionIndex()
-            self.correctAnswers = 0
+            self.presenter.correctAnswers = 0
             self.questionFactory.requestNextQuestion()
         }
         alertPresenter.presentAlert(with: model)
@@ -152,7 +105,7 @@ extension MovieQuizViewController: QuestionFactoryDelegate {
 extension MovieQuizViewController: MovieQuizViewProtocol {
     func showAnswerResult(isCorrect: Bool) {
         if isCorrect {
-            correctAnswers += 1
+            presenter.correctAnswers += 1
         }
         
         imageView.layer.masksToBounds = true
@@ -167,8 +120,21 @@ extension MovieQuizViewController: MovieQuizViewProtocol {
             self.imageView.layer.borderWidth = 0
             noButton.isEnabled = true
             yesButton.isEnabled = true
-            self.showNextQuestionOrResults()
+            self.presenter.showNextQuestionOrResults()
         }
+    }
+    
+    func showAlert(quiz result: QuizResultsViewModel) {
+        let alertModel = AlertModel(
+            title: "Этот раунд окончен!",
+            message: presenter.generateResultText(),
+            buttonText: "Сыграть ещё раз") { [ weak self ] in
+                guard let self else { return }
+                self.presenter.resetQuestionIndex()
+                self.presenter.correctAnswers = 0
+            self.questionFactory.requestNextQuestion()
+        }
+        alertPresenter.presentAlert(with: alertModel)
     }
     
     func show(quiz step: QuizStepViewModel) {

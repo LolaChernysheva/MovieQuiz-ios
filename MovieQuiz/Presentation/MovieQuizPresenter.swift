@@ -11,12 +11,15 @@ import UIKit
 protocol MovieQuizPresenterProtocol: AnyObject {
     var questionsAmount: Int { get }
     var currentQuestion: QuizQuestion? { get set }
+    var correctAnswers: Int { get set }
     func convert(model: QuizQuestion) -> QuizStepViewModel
     func isLastQuestion() -> Bool
     func resetQuestionIndex()
     func noButtonClicked()
     func yesButtonClicked()
     func didReceiveNextQuestion(question: QuizQuestion?)
+    func showNextQuestionOrResults()
+    func generateResultText() -> String
     
 }
 
@@ -28,9 +31,18 @@ final class MovieQuizPresenter: MovieQuizPresenterProtocol {
     var currentQuestion: QuizQuestion?
     
     private var currentQuestionIndex: Int = 0
+    private var playedQuizes = 0
+    var correctAnswers = 0
     
-    init(view: MovieQuizViewProtocol) {
+    private var questionFactory: QuestionFactoryProtocol?
+    
+    private lazy var statisticService: StatisticService = {
+        StatisticServiceImplementation()
+    }()
+    
+    init(view: MovieQuizViewProtocol?, questionFactory: QuestionFactoryProtocol?) {
         self.view = view
+        self.questionFactory = questionFactory
     }
     
     func convert(model: QuizQuestion) -> QuizStepViewModel {
@@ -69,6 +81,34 @@ final class MovieQuizPresenter: MovieQuizPresenterProtocol {
         }
     }
     
+    func generateResultText() -> String {
+        let bestGame = statisticService.bestGame
+        let yourResultText = "Ваш результат: \(correctAnswers)\\\(questionsAmount)"
+        let gamesCountText = "Количество сыгранных квизов: \(statisticService.gamesCount)"
+        let recordText = bestGame?.textRepresention
+        let avarageAccuracyText = " Средняя точность: \(String(format: "%.2F", statisticService.totalAccuracy))%"
+        
+        let message = [yourResultText ,gamesCountText, recordText, avarageAccuracyText].compactMap { $0 }.joined(separator: "\n")
+
+        return message
+    }
+    
+    func showNextQuestionOrResults() {
+        if isLastQuestion() {
+            playedQuizes += 1
+            let resultText = generateResultText()
+            
+            let viewModel = QuizResultsViewModel(
+                title: "Этот раунд окончен!",
+                text: resultText,
+                buttonText: "Сыграть ещё раз")
+            statisticService.store(correct: correctAnswers, total: questionsAmount)
+            view?.showAlert(quiz: viewModel)
+        } else {
+            questionFactory?.requestNextQuestion()
+        }
+    }
+    
     private func switchToNextQuestion() {
         currentQuestionIndex += 1
     }
@@ -81,3 +121,5 @@ final class MovieQuizPresenter: MovieQuizPresenterProtocol {
         view?.showAnswerResult(isCorrect: isCorrect)
     }
 }
+
+
