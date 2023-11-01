@@ -16,6 +16,7 @@ protocol MovieQuizPresenterProtocol: AnyObject {
     func resetQuestionIndex()
     func noButtonClicked()
     func yesButtonClicked()
+    func didReceiveNextQuestion(question: QuizQuestion?)
     
 }
 
@@ -54,6 +55,18 @@ final class MovieQuizPresenter: MovieQuizPresenterProtocol {
     
     func noButtonClicked() {
         isAnswerCorrect(answer: false)
+    }
+    
+    func didReceiveNextQuestion(question: QuizQuestion?) {
+        guard let question = question else {
+            return
+        }
+        currentQuestion = question
+        let viewModel = convert(model: question)
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.view?.show(quiz: viewModel)
+        }
     }
     
     private func switchToNextQuestion() {

@@ -2,6 +2,7 @@ import UIKit
 
 protocol MovieQuizViewProtocol: AnyObject {
     func showAnswerResult(isCorrect: Bool)
+    func show(quiz step: QuizStepViewModel)
 }
 
 final class MovieQuizViewController: UIViewController {
@@ -15,8 +16,6 @@ final class MovieQuizViewController: UIViewController {
     
     private var correctAnswers = 0
     private var playedQuizes = 0
-    
-    //private var currentQuestion: QuizQuestion?
     
     private lazy var questionFactory: QuestionFactoryProtocol = {
         QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
@@ -43,12 +42,6 @@ final class MovieQuizViewController: UIViewController {
     }
     
     //MARK: - private methods
-    
-    private func show(quiz step: QuizStepViewModel) {
-        imageView.image = step.image
-        textLabel.text = step.question
-        counterLabel.text = step.questionNumber
-    }
     
     private func generateResultText() -> String {
         let bestGame = statisticService.bestGame
@@ -141,15 +134,9 @@ final class MovieQuizViewController: UIViewController {
 // MARK: - QuestionFactoryDelegate
 
 extension MovieQuizViewController: QuestionFactoryDelegate {
+    
     func didReceiveNextQuestion(question: QuizQuestion?) {
-        guard let question = question else {
-            return
-        }
-        presenter.currentQuestion = question
-        let viewModel = presenter.convert(model: question)
-        DispatchQueue.main.async { [weak self] in
-            self?.show(quiz: viewModel)
-        }
+        presenter.didReceiveNextQuestion(question: question)
     }
     
     func didLoadDataFromServer() {
@@ -160,11 +147,6 @@ extension MovieQuizViewController: QuestionFactoryDelegate {
     func didFailToLoadData(with error: Error) {
         showNetworkError(message: error.localizedDescription)
     }
-}
-
-fileprivate struct Constants {
-    static let cornerRadius: CGFloat = 20
-    static let borderWidth: CGFloat = 8
 }
 
 extension MovieQuizViewController: MovieQuizViewProtocol {
@@ -189,4 +171,15 @@ extension MovieQuizViewController: MovieQuizViewProtocol {
         }
     }
     
+    func show(quiz step: QuizStepViewModel) {
+        imageView.image = step.image
+        textLabel.text = step.question
+        counterLabel.text = step.questionNumber
+    }
+}
+
+
+fileprivate struct Constants {
+    static let cornerRadius: CGFloat = 20
+    static let borderWidth: CGFloat = 8
 }
