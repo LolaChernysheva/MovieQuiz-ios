@@ -60,8 +60,7 @@ final class MovieQuizViewController: UIViewController {
                                buttonText: "Попробовать еще раз") { [weak self] in
             guard let self = self else { return }
             
-            self.presenter.resetQuestionIndex()
-            self.presenter.correctAnswers = 0
+            self.presenter.restartGame()
             self.questionFactory.requestNextQuestion()
         }
         alertPresenter.presentAlert(with: model)
@@ -130,8 +129,7 @@ extension MovieQuizViewController: MovieQuizViewProtocol {
             message: presenter.generateResultText(),
             buttonText: "Сыграть ещё раз") { [ weak self ] in
                 guard let self else { return }
-                self.presenter.resetQuestionIndex()
-                self.presenter.correctAnswers = 0
+                self.presenter.restartGame()
             self.questionFactory.requestNextQuestion()
         }
         alertPresenter.presentAlert(with: alertModel)

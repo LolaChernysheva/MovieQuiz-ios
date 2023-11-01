@@ -14,13 +14,12 @@ protocol MovieQuizPresenterProtocol: AnyObject {
     var correctAnswers: Int { get set }
     func convert(model: QuizQuestion) -> QuizStepViewModel
     func isLastQuestion() -> Bool
-    func resetQuestionIndex()
     func noButtonClicked()
     func yesButtonClicked()
     func didReceiveNextQuestion(question: QuizQuestion?)
     func showNextQuestionOrResults()
     func generateResultText() -> String
-    
+    func restartGame()
 }
 
 final class MovieQuizPresenter: MovieQuizPresenterProtocol {
@@ -57,7 +56,7 @@ final class MovieQuizPresenter: MovieQuizPresenterProtocol {
         currentQuestionIndex == questionsAmount
     }
     
-    func resetQuestionIndex() {
+    private func resetQuestionIndex() {
         currentQuestionIndex = 0
     }
     
@@ -67,6 +66,15 @@ final class MovieQuizPresenter: MovieQuizPresenterProtocol {
     
     func noButtonClicked() {
         isAnswerCorrect(answer: false)
+    }
+    
+    private func resetCorrectAnswers() {
+        correctAnswers = 0
+    }
+    
+    func restartGame() {
+        resetQuestionIndex()
+        resetCorrectAnswers()
     }
     
     func didReceiveNextQuestion(question: QuizQuestion?) {
