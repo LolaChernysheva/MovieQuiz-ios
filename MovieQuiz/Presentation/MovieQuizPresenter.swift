@@ -33,15 +33,17 @@ final class MovieQuizPresenter: MovieQuizPresenterProtocol {
     private var playedQuizes = 0
     var correctAnswers = 0
     
-    private var questionFactory: QuestionFactoryProtocol?
-    
     private lazy var statisticService: StatisticService = {
         StatisticServiceImplementation()
     }()
     
-    init(view: MovieQuizViewProtocol?, questionFactory: QuestionFactoryProtocol?) {
+    private lazy var questionFactory: QuestionFactoryProtocol = {
+        QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+    }()
+    
+    init(view: MovieQuizViewProtocol?) {
         self.view = view
-        self.questionFactory = questionFactory
+        questionFactory.loadData()
     }
     
     func convert(model: QuizQuestion) -> QuizStepViewModel {
@@ -75,6 +77,7 @@ final class MovieQuizPresenter: MovieQuizPresenterProtocol {
     func restartGame() {
         resetQuestionIndex()
         resetCorrectAnswers()
+        questionFactory.requestNextQuestion()
     }
     
     func didReceiveNextQuestion(question: QuizQuestion?) {
@@ -113,7 +116,7 @@ final class MovieQuizPresenter: MovieQuizPresenterProtocol {
             statisticService.store(correct: correctAnswers, total: questionsAmount)
             view?.showAlert(quiz: viewModel)
         } else {
-            questionFactory?.requestNextQuestion()
+            questionFactory.requestNextQuestion()
         }
     }
     
@@ -127,6 +130,18 @@ final class MovieQuizPresenter: MovieQuizPresenterProtocol {
         }
         let isCorrect = currentQuestion.correctAnswer == answer
         view?.showAnswerResult(isCorrect: isCorrect)
+    }
+}
+
+extension MovieQuizPresenter: QuestionFactoryDelegate {
+    
+    func didLoadDataFromServer() {
+        view?.hideActivityIndicator()
+        questionFactory.requestNextQuestion()
+    }
+
+    func didFailToLoadData(with error: Error) {
+        view?.showNetworkError(message: error.localizedDescription)
     }
 }
 
