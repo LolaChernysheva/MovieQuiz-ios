@@ -1,5 +1,9 @@
 import UIKit
 
+protocol MovieQuizViewProtocol: AnyObject {
+    
+}
+
 final class MovieQuizViewController: UIViewController {
     
     @IBOutlet private var imageView: UIImageView!
@@ -27,25 +31,28 @@ final class MovieQuizViewController: UIViewController {
     private lazy var statisticService: StatisticService = {
         StatisticServiceImplementation()
     }()
+    
+    private var presenter: MovieQuizPresenterProtocol!
    
     
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        presenter = MovieQuizPresenter(view: self)
         showLoadingIndicator()
         questionFactory.loadData()
     }
     
     //MARK: - private methods
     
-    private func convert(model: QuizQuestion) -> QuizStepViewModel {
-        currentQuestionIndex += 1
-        return QuizStepViewModel(
-            image: UIImage(data: model.image) ?? UIImage(),
-            question: model.text,
-            questionNumber: "\(currentQuestionIndex)/\(questionsAmount)")
-    }
+//    private func convert(model: QuizQuestion) -> QuizStepViewModel {
+//        currentQuestionIndex += 1
+//        return QuizStepViewModel(
+//            image: UIImage(data: model.image) ?? UIImage(),
+//            question: model.text,
+//            questionNumber: "\(currentQuestionIndex)/\(questionsAmount)")
+//    }
     
     private func show(quiz step: QuizStepViewModel) {
         imageView.image = step.image
@@ -178,7 +185,7 @@ extension MovieQuizViewController: QuestionFactoryDelegate {
             return
         }
         currentQuestion = question
-        let viewModel = convert(model: question)
+        let viewModel = presenter.convert(model: question)
         DispatchQueue.main.async { [weak self] in
             self?.show(quiz: viewModel)
         }
@@ -197,4 +204,8 @@ extension MovieQuizViewController: QuestionFactoryDelegate {
 fileprivate struct Constants {
     static let cornerRadius: CGFloat = 20
     static let borderWidth: CGFloat = 8
+}
+
+extension MovieQuizViewController: MovieQuizViewProtocol {
+    
 }
