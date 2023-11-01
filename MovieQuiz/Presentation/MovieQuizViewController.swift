@@ -1,7 +1,7 @@
 import UIKit
 
 protocol MovieQuizViewProtocol: AnyObject {
-    
+    func showAnswerResult(isCorrect: Bool)
 }
 
 final class MovieQuizViewController: UIViewController {
@@ -13,12 +13,10 @@ final class MovieQuizViewController: UIViewController {
     @IBOutlet weak var yesButton: UIButton!
     @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
     
-    //private var currentQuestionIndex = 0
     private var correctAnswers = 0
     private var playedQuizes = 0
     
-   // private let questionsAmount: Int = 10
-    private var currentQuestion: QuizQuestion?
+    //private var currentQuestion: QuizQuestion?
     
     private lazy var questionFactory: QuestionFactoryProtocol = {
         QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
@@ -50,35 +48,6 @@ final class MovieQuizViewController: UIViewController {
         imageView.image = step.image
         textLabel.text = step.question
         counterLabel.text = step.questionNumber
-    }
-    
-    private func showAnswerResult(isCorrect: Bool) {
-        if isCorrect {
-            correctAnswers += 1
-        }
-        
-        imageView.layer.masksToBounds = true
-        imageView.layer.borderWidth = Constants.borderWidth
-        imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
-        imageView.layer.cornerRadius = Constants.cornerRadius
-        noButton.isEnabled = false
-        yesButton.isEnabled = false
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [ weak self ] in
-            guard let self = self else { return }
-            self.imageView.layer.borderWidth = 0
-            noButton.isEnabled = true
-            yesButton.isEnabled = true
-            self.showNextQuestionOrResults()
-        }
-    }
-    
-    private func isAnswerCorrect(answer: Bool) {
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
-        let isCorrect = currentQuestion.correctAnswer == answer
-        showAnswerResult(isCorrect: isCorrect)
     }
     
     private func generateResultText() -> String {
@@ -161,11 +130,11 @@ final class MovieQuizViewController: UIViewController {
     //MARK: - IBActions
     
     @IBAction private func yesButtonClicked(_ sender: Any) {
-        isAnswerCorrect(answer: true)
+        presenter.yesButtonClicked()
     }
     
     @IBAction private func noButtonClicked(_ sender: Any) {
-        isAnswerCorrect(answer: false)
+        presenter.noButtonClicked()
     }
 }
 
@@ -176,7 +145,7 @@ extension MovieQuizViewController: QuestionFactoryDelegate {
         guard let question = question else {
             return
         }
-        currentQuestion = question
+        presenter.currentQuestion = question
         let viewModel = presenter.convert(model: question)
         DispatchQueue.main.async { [weak self] in
             self?.show(quiz: viewModel)
@@ -199,5 +168,25 @@ fileprivate struct Constants {
 }
 
 extension MovieQuizViewController: MovieQuizViewProtocol {
+    func showAnswerResult(isCorrect: Bool) {
+        if isCorrect {
+            correctAnswers += 1
+        }
+        
+        imageView.layer.masksToBounds = true
+        imageView.layer.borderWidth = Constants.borderWidth
+        imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
+        imageView.layer.cornerRadius = Constants.cornerRadius
+        noButton.isEnabled = false
+        yesButton.isEnabled = false
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [ weak self ] in
+            guard let self = self else { return }
+            self.imageView.layer.borderWidth = 0
+            noButton.isEnabled = true
+            yesButton.isEnabled = true
+            self.showNextQuestionOrResults()
+        }
+    }
     
 }
