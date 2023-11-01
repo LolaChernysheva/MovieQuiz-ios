@@ -74,6 +74,20 @@ final class MovieQuizPresenter: MovieQuizPresenterProtocol {
         correctAnswers = 0
     }
     
+    private func showAnswerResult(isCorrect: Bool) {
+        if isCorrect {
+            correctAnswers += 1
+        }
+        
+        view?.highlightImageBorder(isCorrect: isCorrect)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [ weak self ] in
+            guard let self = self else { return }
+            view?.resetImageSettings()
+            showNextQuestionOrResults()
+        }
+    }
+    
     func restartGame() {
         resetQuestionIndex()
         resetCorrectAnswers()
@@ -129,7 +143,7 @@ final class MovieQuizPresenter: MovieQuizPresenterProtocol {
             return
         }
         let isCorrect = currentQuestion.correctAnswer == answer
-        view?.showAnswerResult(isCorrect: isCorrect)
+        showAnswerResult(isCorrect: isCorrect)
     }
 }
 

@@ -1,11 +1,12 @@
 import UIKit
 
 protocol MovieQuizViewProtocol: AnyObject {
-    func showAnswerResult(isCorrect: Bool)
     func show(quiz step: QuizStepViewModel)
     func showAlert(quiz result: QuizResultsViewModel)
     func hideActivityIndicator()
     func showNetworkError(message: String)
+    func highlightImageBorder(isCorrect: Bool)
+    func resetImageSettings()
 }
 
 final class MovieQuizViewController: UIViewController {
@@ -68,25 +69,20 @@ final class MovieQuizViewController: UIViewController {
 
 
 extension MovieQuizViewController: MovieQuizViewProtocol {
-    func showAnswerResult(isCorrect: Bool) {
-        if isCorrect {
-            presenter.correctAnswers += 1
-        }
-        
+    
+    func highlightImageBorder(isCorrect: Bool) {
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = Constants.borderWidth
         imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
         imageView.layer.cornerRadius = Constants.cornerRadius
         noButton.isEnabled = false
         yesButton.isEnabled = false
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [ weak self ] in
-            guard let self = self else { return }
-            self.imageView.layer.borderWidth = 0
-            noButton.isEnabled = true
-            yesButton.isEnabled = true
-            self.presenter.showNextQuestionOrResults()
-        }
+    }
+    
+    func resetImageSettings() {
+        self.imageView.layer.borderWidth = 0
+        noButton.isEnabled = true
+        yesButton.isEnabled = true
     }
     
     func showAlert(quiz result: QuizResultsViewModel) {
@@ -122,7 +118,6 @@ extension MovieQuizViewController: MovieQuizViewProtocol {
         activityIndicator.isHidden = true
     }
 }
-
 
 fileprivate struct Constants {
     static let cornerRadius: CGFloat = 20
