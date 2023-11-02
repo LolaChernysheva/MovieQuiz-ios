@@ -60,19 +60,6 @@ struct ArithmeticOperationsAsync {
 
 final class ArithmeticOperationsAsyncTests: XCTestCase {
     
-//    func testAddition() throws {
-//        // Given
-//        let arithmeticOperations = ArithmeticOperationsAsync()
-//        let num1 = 1
-//        let num2 = 2
-//
-//       // When
-//        arithmeticOperations.addition(num1: num1, num2: num2) { result in
-//            // Then
-//            XCTAssertEqual(result, 4)
-//        }
-//    }
-    
     func testAddition() throws {
         // Given
         let arithmeticOperations = ArithmeticOperationsAsync()

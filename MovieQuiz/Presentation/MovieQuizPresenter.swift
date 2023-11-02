@@ -27,11 +27,11 @@ final class MovieQuizPresenter: MovieQuizPresenterProtocol {
     weak var view: MovieQuizViewProtocol?
     
     let questionsAmount: Int = 10
+    var correctAnswers = 0
     var currentQuestion: QuizQuestion?
     
     private var currentQuestionIndex: Int = 0
     private var playedQuizes = 0
-    var correctAnswers = 0
     
     private lazy var statisticService: StatisticService = {
         StatisticServiceImplementation()
@@ -57,35 +57,13 @@ final class MovieQuizPresenter: MovieQuizPresenterProtocol {
     func isLastQuestion() -> Bool {
         currentQuestionIndex == questionsAmount
     }
-    
-    private func resetQuestionIndex() {
-        currentQuestionIndex = 0
-    }
-    
+
     func yesButtonClicked() {
         isAnswerCorrect(answer: true)
     }
     
     func noButtonClicked() {
         isAnswerCorrect(answer: false)
-    }
-    
-    private func resetCorrectAnswers() {
-        correctAnswers = 0
-    }
-    
-    private func showAnswerResult(isCorrect: Bool) {
-        if isCorrect {
-            correctAnswers += 1
-        }
-        
-        view?.highlightImageBorder(isCorrect: isCorrect)
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [ weak self ] in
-            guard let self = self else { return }
-            view?.resetImageSettings()
-            showNextQuestionOrResults()
-        }
     }
     
     func restartGame() {
@@ -134,6 +112,28 @@ final class MovieQuizPresenter: MovieQuizPresenterProtocol {
         }
     }
     
+    private func resetCorrectAnswers() {
+        correctAnswers = 0
+    }
+    
+    private func resetQuestionIndex() {
+        currentQuestionIndex = 0
+    }
+    
+    private func showAnswerResult(isCorrect: Bool) {
+        if isCorrect {
+            correctAnswers += 1
+        }
+        
+        view?.highlightImageBorder(isCorrect: isCorrect)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [ weak self ] in
+            guard let self = self else { return }
+            view?.resetImageSettings()
+            showNextQuestionOrResults()
+        }
+    }
+    
     private func switchToNextQuestion() {
         currentQuestionIndex += 1
     }
@@ -158,5 +158,3 @@ extension MovieQuizPresenter: QuestionFactoryDelegate {
         view?.showNetworkError(message: error.localizedDescription)
     }
 }
-
-

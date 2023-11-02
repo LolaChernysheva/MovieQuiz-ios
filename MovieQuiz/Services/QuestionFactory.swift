@@ -14,19 +14,6 @@ final class QuestionFactory: QuestionFactoryProtocol {
         static let question: String = "Рейтинг этого фильма больше чем 6?"
     }
     
-//    private let questions: [QuizQuestion] = [
-//        .init(image: Assets.godfatherImageName, text: Text.question, correctAnswer: true),
-//        .init(image: Assets.darkKnightImageName, text: Text.question, correctAnswer: true),
-//        .init(image: Assets.killBillImageName, text: Text.question, correctAnswer: true),
-//        .init(image: Assets.avengersImageName, text: Text.question, correctAnswer: true),
-//        .init(image: Assets.deadpoolImageName, text: Text.question, correctAnswer: true),
-//        .init(image: Assets.greenKnightImageName, text: Text.question, correctAnswer: true),
-//        .init(image: Assets.oldImageName, text: Text.question, correctAnswer: false),
-//        .init(image: Assets.iceAgeAdventuresImageName, text: Text.question, correctAnswer: false),
-//        .init(image: Assets.teslaImageName, text: Text.question, correctAnswer: false),
-//        .init(image: Assets.vivariumImageName, text: Text.question, correctAnswer: false)
-//    ]
-    
     private var movies: [MostPopularMovie] = []
     
     private let moviesLoader: MoviesLoading
